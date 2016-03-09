@@ -1,7 +1,7 @@
 /*!
-angular-xeditable - 0.1.10
+angular-xeditable - 0.1.11
 Edit-in-place for angular.js
-Build date: 2016-02-16 
+Build date: 2016-03-09 
 */
 /**
  * Angular-xeditable module 
@@ -259,7 +259,7 @@ Input types: text|email|tel|number|url|search|color|date|datetime|time|month|wee
   var types = 'text|password|email|tel|number|url|search|color|date|datetime|time|month|week|file'.split('|');
 
   //todo: datalist
-  
+
   // generate directives
   angular.forEach(types, function(type) {
     var directiveName = 'editable'+type.charAt(0).toUpperCase() + type.slice(1);
@@ -267,7 +267,15 @@ Input types: text|email|tel|number|url|search|color|date|datetime|time|month|wee
       function(editableDirectiveFactory) {
         return editableDirectiveFactory({
           directiveName: directiveName,
-          inputTpl: '<input type="'+type+'">'
+          inputTpl: '<input type="' + type + '">',
+          autosubmit: function() {
+            var self = this;
+            this.inputEl.bind('blur', function() {
+              self.scope.$apply(function() {
+                self.scope.$form.$submit();
+              });
+            });
+          }
         });
     }]);
   });
@@ -281,7 +289,7 @@ Input types: text|email|tel|number|url|search|color|date|datetime|time|month|wee
         render: function() {
           this.parent.render.call(this);
           this.inputEl.after('<output>{{$data}}</output>');
-        }        
+        }
       });
   }]);
 
@@ -2152,6 +2160,7 @@ Editable themes:
 - default
 - bootstrap 2
 - bootstrap 3
+- semantic-ui
 
 Note: in postrender() `this` is instance of editableController
 */
@@ -2238,6 +2247,20 @@ angular.module('xeditable').factory('editableThemes', function() {
           this.buttonsEl.find('button').addClass(this.theme.buttonsClass);
         }
       }
+    },
+    
+    //semantic-ui
+    'semantic': {
+      formTpl:     '<form class="editable-wrap ui form" ng-class="{\'error\': $error}" role="form"></form>',
+      noformTpl:   '<span class="editable-wrap"></span>',
+      controlsTpl: '<div class="editable-controls ui fluid input" ng-class="{\'error\': $error}"></div>',
+      inputTpl:    '',
+      errorTpl:    '<div class="editable-error ui error message" ng-show="$error" ng-bind="$error"></div>',
+      buttonsTpl:  '<span class="mini ui buttons"></span>',
+      submitTpl:   '<button type="submit" class="ui primary button"><i class="ui check icon"></i></button>',
+      cancelTpl:   '<button type="button" class="ui button" ng-click="$form.$cancel()">'+
+                      '<i class="ui cancel icon"></i>'+
+                   '</button>'
     }
   };
 
