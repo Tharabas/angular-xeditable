@@ -7,7 +7,7 @@ Input types: text|email|tel|number|url|search|color|date|datetime|time|month|wee
   var types = 'text|password|email|tel|number|url|search|color|date|datetime|time|month|week|file'.split('|');
 
   //todo: datalist
-  
+
   // generate directives
   angular.forEach(types, function(type) {
     var directiveName = 'editable'+type.charAt(0).toUpperCase() + type.slice(1);
@@ -15,7 +15,15 @@ Input types: text|email|tel|number|url|search|color|date|datetime|time|month|wee
       function(editableDirectiveFactory) {
         return editableDirectiveFactory({
           directiveName: directiveName,
-          inputTpl: '<input type="'+type+'">'
+          inputTpl: '<input type="' + type + '">',
+          autosubmit: function() {
+            var self = this;
+            this.inputEl.bind('blur', function() {
+              self.scope.$apply(function() {
+                self.scope.$form.$submit();
+              });
+            });
+          }
         });
     }]);
   });
@@ -29,7 +37,7 @@ Input types: text|email|tel|number|url|search|color|date|datetime|time|month|wee
         render: function() {
           this.parent.render.call(this);
           this.inputEl.after('<output>{{$data}}</output>');
-        }        
+        }
       });
   }]);
 
